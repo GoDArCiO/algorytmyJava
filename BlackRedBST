@@ -1,103 +1,77 @@
 package algorytmy;
 
-// data structure that represents a node in the tree
 class Node {
-	int data; // holds the key
-	Node parent; // pointer to the parent
-	Node left; // pointer to left child
-	Node right; // pointer to right child
-	int color; // 1 . Red, 0 . Black
+	int data; 
+	Node parent; //wskaznik
+	Node left; 
+	Node right; 
+	int color; //1.Red 0.Black
 }
 
-
-// class RedBlackTree implements the operations in Red Black Tree
 public class RedBlackTree {
 	private Node root;
 	private Node TNULL;
 
-	// fix the rb tree modified by the delete operation
 	private void fixDelete(Node x) {
-		Node s;
+		Node brat;
 		while (x != root && x.color == 0) {
-			if (x == x.parent.left) {
-				s = x.parent.right;
-				if (s.color == 1) {
-					// case 3.1
-					s.color = 0;
+			if (x == x.parent.left) {//jest lewym synem
+				brat = x.parent.right;//wiec to jest brat
+				if (brat.color == 1) {
+					//brat czerwony wiec rekolor z ojcem ------------------------------------------------przyp1
+					brat.color = 0;
 					x.parent.color = 1;
-					leftRotate(x.parent);
-					s = x.parent.right;
+					leftRotate(x.parent);//rotujemy ojca w kierunku x
+					brat = x.parent.right;//refresh brata
 				}
-
-				if (s.left.color == 0 && s.right.color == 0) {
-					// case 3.2
-					s.color = 1;
-					x = x.parent;
+				if (brat.left.color == 0 && brat.right.color == 0) {//brat wezla i jego synowie czarni ------------------przyp2
+					brat.color = 1;//zmien kolor
+					x = x.parent;//ustaw wskaznik na ojca i petla
 				} else {
-					if (s.right.color == 0) {
-						// case 3.3
-						s.left.color = 0;
-						s.color = 1;
-						rightRotate(s);
-						s = x.parent.right;
-					} 
-
-					// case 3.4
-					s.color = x.parent.color;
+					if (brat.right.color == 0) {
+						//syn brata skierowany w tym samym kierunku co x od ojca ( w tym przypadku w lewo)----------------------przyp3
+						brat.left.color = 0;
+						brat.color = 1;
+						rightRotate(brat);//zmiana koloru, rotacja po bracie
+						brat = x.parent.right;//refresh brata i odrazu instrukcje z syn brata skierowany w przeciwnym kierunku co x od ojca
+					} //syn brata skierowany w przeciwnym kierunku co x od ojca ---------------------------------------------------------------przyp4
+					brat.color = x.parent.color;//lokalny korzen ma zachowac swoj kolor
 					x.parent.color = 0;
-					s.right.color = 0;
-					leftRotate(x.parent);
-					x = root;
+					brat.right.color = 0;
+					leftRotate(x.parent);//rotuj ojca w kierunku syna ( w tym przypadku w lewo)
+					x = root;//done (wyjscie z petli)
 				}
-			} else {
-				s = x.parent.left;
-				if (s.color == 1) {
-					// case 3.1
-					s.color = 0;
+			} else {//jest prawym synem -> lustro
+				brat = x.parent.left;
+				if (brat.color == 1) {
+					brat.color = 0;
 					x.parent.color = 1;
 					rightRotate(x.parent);
-					s = x.parent.left;
+					brat = x.parent.left;
 				}
-
-				if (s.right.color == 0 && s.right.color == 0) {
-					// case 3.2
-					s.color = 1;
+				if (brat.right.color == 0 && brat.right.color == 0) {
+					brat.color = 1;
 					x = x.parent;
 				} else {
-					if (s.left.color == 0) {
-						// case 3.3
-						s.right.color = 0;
-						s.color = 1;
-						leftRotate(s);
-						s = x.parent.left;
+					if (brat.left.color == 0) {
+						brat.right.color = 0;
+						brat.color = 1;
+						leftRotate(brat);
+						brat = x.parent.left;
 					} 
-
-					// case 3.4
-					s.color = x.parent.color;
+					brat.color = x.parent.color;
 					x.parent.color = 0;
-					s.left.color = 0;
+					brat.left.color = 0;
 					rightRotate(x.parent);
 					x = root;
 				}
 			} 
 		}
-		x.color = 0;
-	}
-
-
-	private void rbTransplant(Node u, Node v){
-		if (u.parent == null) {
-			root = v;
-		} else if (u == u.parent.left){
-			u.parent.left = v;
-		} else {
-			u.parent.right = v;
-		}
-		v.parent = u.parent;
+		x.color = 0;//x jest czerwony ----------------------------------------------------przyp0
 	}
 
 	private void deleteNodeHelper(Node node, int key) {
-		// find the node containing key
+		//znajdz
 		Node z = TNULL;
 		Node x, y;
 		while (node != TNULL){
@@ -113,36 +87,67 @@ public class RedBlackTree {
 		}
 
 		if (z == TNULL) {
-			System.out.println("Couldn't find key in the tree");
+			System.out.println("error");
 			return;
 		} 
-
+		//koniec
+		
+		//zwykle usuwanko
 		y = z;
 		int yOriginalColor = y.color;
-		if (z.left == TNULL) {
+		if (z.left == TNULL) {//nie ma lewego syna to przesadz w siebie prawego
 			x = z.right;
-			rbTransplant(z, z.right);
-		} else if (z.right == TNULL) {
+			if (z.parent == null) {
+				root = z.right;
+			} else if (z == z.parent.left){
+				z.parent.left = z.right;
+			} else {
+				z.parent.right = z.right;
+			}
+			z.right.parent = z.parent;
+		} else if (z.right == TNULL) {//nie ma prawego syna to przesadz w siebie lewego
 			x = z.left;
-			rbTransplant(z, z.left);
-		} else {
-			y = minimum(z.right);
+			if (z.parent == null) {
+				root = z.left;
+			} else if (z == z.parent.left){
+				z.parent.left = z.left;
+			} else {
+				z.parent.right = z.left;
+			}
+			z.left.parent = z.parent;
+		} else {//ma obu synow
+			y = minimum(z.right);//znajdz najblizszego sobie z prawej
 			yOriginalColor = y.color;
 			x = y.right;
 			if (y.parent == z) {
 				x.parent = y;
 			} else {
-				rbTransplant(y, y.right);
+				if (y.parent == null) {
+					root = y.right;
+				} else if (y == y.parent.left){
+					y.parent.left = y.right;
+				} else {
+					y.parent.right = y.right;
+				}
+				y.right.parent = y.parent;
 				y.right = z.right;
 				y.right.parent = y;
 			}
-
-			rbTransplant(z, y);
+			if (z.parent == null) {
+				root = y;
+			} else if (z == z.parent.left){
+				z.parent.left = y;
+			} else {
+				z.parent.right = y;
+			}
+			y.parent = z.parent;
 			y.left = z.left;
 			y.left.parent = y;
 			y.color = z.color;
 		}
-		if (yOriginalColor == 0){
+		//zwykle usuwanko KONIEC
+		
+		if (yOriginalColor == 0){//jak byles czarny to idz sie naprawic
 			fixDelete(x);
 		}
 	}
@@ -152,31 +157,27 @@ public class RedBlackTree {
 		Node u;
 		while (k.parent.color == 1) {//ojciec jest czerwony
 			
-			//---------------------------------------------------
 			//jezeli jest ojcem z prawej
 			if (k.parent == k.parent.parent.right) {
 				u = k.parent.parent.left; // brat ojca
 				if (u.color == 1) {//jest czerwony
-					// case 3.1 zamiana kolorami wujka i ojca z dziadkiem
+					//  "wujek czerwony" zamiana kolorami wujka i ojca z dziadkiem -------------przyp1
 					u.color = 0;
 					k.parent.color = 0;
 					k.parent.parent.color = 1;
 					k = k.parent.parent;
-				} else {//brat ojca jest czarny
+				} else {//brat ojca jest czarny ----------------------------------------------------przyp2
 					if (k == k.parent.left) {//i jest lewym dzieckiem
 						// case 3.2.2 rotacja po rodzicu
 						k = k.parent;
 						rightRotate(k);
-					}//brat ojca jest czarny i jest lewym dzieckiem po rotacji lub prawym dzieckiem
-					// case 3.2.1 rotacja po dziadku i zmien kolory rodzica z dziadkiem (czyli po obrocie bratem)
+					}//brat ojca jest czarny i x oraz ojciec leza w tym samym kierunku (tutaj z prawej) ---------------------------------------przyp3
+					//rotacja po dziadku i zmien kolory rodzica z dziadkiem (czyli po obrocie bratem) (czyli zachowaj kolor lokalnego korzenia)
 					k.parent.color = 0;
 					k.parent.parent.color = 1;
 					leftRotate(k.parent.parent);
-				}
-				
-				//-----------------------------------------------
-				//jezeli jest ojcem z lewej (lustrzane odbicie)
-			} else {
+				}//done
+			} else {//jezeli jest ojcem z lewej (lustrzane odbicie)
 				u = k.parent.parent.right;
 				if (u.color == 1) {
 					u.color = 0;
@@ -196,12 +197,11 @@ public class RedBlackTree {
 			//jak dojdziemy do konca drzewa to spadamy z while'a
 			if (k == root)break;
 		}
-		root.color = 0;
+		root.color = 0;//przyp 0
 	}
 	//	######################################################	napraw insert
 
 	private void printHelper(Node root, String indent, boolean last) {
-		// print the tree structure on the screen
 	   	if (root != TNULL) {
 		   System.out.print(indent);
 		   if (last) {
@@ -219,7 +219,7 @@ public class RedBlackTree {
 		}
 	}
 
-	public RedBlackTree() {
+	public RedBlackTree() {//prototyp
 		TNULL = new Node();
 		TNULL.color = 0;
 		TNULL.left = null;
@@ -227,58 +227,11 @@ public class RedBlackTree {
 		root = TNULL;
 	}
 
-
-	// find the node with the minimum key
 	public Node minimum(Node node) {
 		while (node.left != TNULL) {
 			node = node.left;
 		}
 		return node;
-	}
-
-	// find the node with the maximum key
-	public Node maximum(Node node) {
-		while (node.right != TNULL) {
-			node = node.right;
-		}
-		return node;
-	}
-
-	// find the successor of a given node
-	public Node successor(Node x) {
-		// if the right subtree is not null,
-		// the successor is the leftmost node in the
-		// right subtree
-		if (x.right != TNULL) {
-			return minimum(x.right);
-		}
-
-		// else it is the lowest ancestor of x whose
-		// left child is also an ancestor of x.
-		Node y = x.parent;
-		while (y != TNULL && x == y.right) {
-			x = y;
-			y = y.parent;
-		}
-		return y;
-	}
-
-	// find the predecessor of a given node
-	public Node predecessor(Node x) {
-		// if the left subtree is not null,
-		// the predecessor is the rightmost node in the 
-		// left subtree
-		if (x.left != TNULL) {
-			return maximum(x.left);
-		}
-
-		Node y = x.parent;
-		while (y != TNULL && x == y.left) {
-			x = y;
-			y = y.parent;
-		}
-
-		return y;
 	}
 
 	//  ######################################################### rotacja lewa
@@ -321,6 +274,7 @@ public class RedBlackTree {
 	}
 	//  ######################################################### rotacja prawa
 
+	//  ######################################################### insert
 	public void insert(int key) {
 		//Wstawianko jak w drzewku normalsowym
 		Node node = new Node();
@@ -366,32 +320,45 @@ public class RedBlackTree {
 
 		fixInsert(node);
 	}
+	//  ######################################################### insert
 
-	//public Node getRoot(){
-	//	return this.root;
-	//}
-
-	// delete the node from the tree
 	public void deleteNode(int data) {
 		deleteNodeHelper(this.root, data);
 	}
 
-	// print the tree structure on the screen
 	public void prettyPrint() {
         printHelper(this.root, "", true);
 	}
 	
 	public static void main(String [] args){
     	RedBlackTree bst = new RedBlackTree();
-        bst.insert(8);
-    	bst.insert(18);
+    	System.out.println("all 8.1");
+    	System.out.println("");
+    	//zadanie all8.1 38, 31, 22, 8, 20, 5, 10, 9, 21, 27, 29, 25, 28
+        bst.insert(38);
+    	bst.insert(31);
+    	bst.insert(22);
+    	bst.insert(8);
+    	bst.insert(20);
     	bst.insert(5);
-    	bst.insert(15);
-    	bst.insert(17);
+    	bst.insert(10);
+    	bst.insert(9);
+    	bst.insert(21);
+    	bst.insert(27);
+    	bst.insert(29);
     	bst.insert(25);
-    	bst.insert(40);
-    	bst.insert(80);
-    	bst.deleteNode(25);
+    	bst.prettyPrint();
+    	System.out.println("all 8.2");
+    	System.out.println("");
+    	//zadanie all8.2 5, 38, 8, 10, 22, 20, 29, 31
+    	bst.deleteNode(5);
+    	bst.deleteNode(38);
+    	bst.deleteNode(8);
+    	bst.deleteNode(10);
+    	bst.deleteNode(22);
+    	bst.deleteNode(20);
+    	bst.deleteNode(29);
+    	bst.deleteNode(31);
     	bst.prettyPrint();
 	}
 }
