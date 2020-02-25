@@ -233,7 +233,69 @@ public class RedBlackTree {
 		}
 		return node;
 	}
+	
+	public void scan() {//maksymalna i minimalna glebokosc lisci w drzewie czerwono-czarnym oraz liczbe czerwonych wezlow. 
+		Node node = this.root;
+		int redCount=red(node);
+		int longestCount=maxDepth(node);
+		int shortestCount=minDepth(node);
+		System.out.println("redCount: "+redCount);
+		System.out.println("longest: "+longestCount);
+		System.out.println("shortest: "+shortestCount);
+	}
+	
+	  int maxDepth(Node root)  
+	  { 
+	    // Root being null means tree doesn't exist.
+	    if (root == null) 
+	      return 0; 
 
+	    // Get the depth of the left and right subtree 
+	    // using recursion.
+	    int leftDepth = maxDepth(root.left); 
+	    int rightDepth = maxDepth(root.right); 
+
+	    // Choose the larger one and add the root to it.
+	    if (leftDepth > rightDepth) 
+	      return (leftDepth + 1); 
+	    else 
+	      return (rightDepth + 1); 
+	  }
+	
+	  int minDepth(Node root)  
+	  { 
+	    // Root being null means tree doesn't exist.
+	    if (root == null) 
+	      return 0; 
+
+	    // Get the depth of the left and right subtree 
+	    // using recursion.
+	    int leftDepth = minDepth(root.left); 
+	    int rightDepth = minDepth(root.right); 
+
+	    // Choose the larger one and add the root to it.
+	    if (leftDepth < rightDepth) 
+	      return (leftDepth + 1); 
+	    else 
+	      return (rightDepth + 1); 
+	  }
+	  
+	  int red(Node root)  
+	  { 
+		  int red=0;
+	    // Root being null means tree doesn't exist.
+	    if (root == null) 
+	      return 0; 
+
+	    red += red(root.left); 
+	    red += red(root.right); 
+
+	    if(root.color==1){
+	        red++;
+	    }
+	    return red;
+	  }
+	  
 	//  ######################################################### rotacja lewa
 	public void leftRotate(Node x) {
 		Node y = x.right;
@@ -360,5 +422,14 @@ public class RedBlackTree {
     	bst.deleteNode(29);
     	bst.deleteNode(31);
     	bst.prettyPrint();
+    	System.out.println("");
+    	bst.scan();
+    	System.out.println("");
+    	System.out.println("big data");
+    	RedBlackTree bst2 = new RedBlackTree();
+    	for (int i = 1; i < 1000; i++) {
+    		bst2.insert(i);
+    	}
+    	bst2.scan();
 	}
 }
