@@ -62,7 +62,7 @@ class LongestCommonSubString
 
 	public static void main(String[] args)
 	{
-		String X = "ABCBDAB", Y = "BDCABA";
+		String X = "aabca", Y = "cabba";
 		int[][] T = new int[X.length() + 1][Y.length() + 1];
 		//tu jest ten caly algorytm z podpunktu pierwszego (wypelnia tabelke)
 		fillTable(X, Y, T);
